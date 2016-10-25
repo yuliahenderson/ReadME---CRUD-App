@@ -10,6 +10,7 @@ const sqlProvider = {
   books: {
     all: sql('./sql/book/all.sql'),
     create: sql('./sql/book/create.sql'),
+    delete: sql('./sql/book/delete.sql'),
   },
 };
 

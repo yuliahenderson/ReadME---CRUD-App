@@ -10,6 +10,9 @@ class BookDAO {
     return db.one(sql.create, [title, author])
              .then((data) => new Book(data));
   }
+  static delete(id) {
+    return db.none(sql.delete, [id]);
+  }
 }
 
 module.exports = BookDAO;

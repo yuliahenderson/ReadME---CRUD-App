@@ -15,6 +15,10 @@ class BookController {
     BookDAO.create(bookData)
            .then((book) => res.status(200).json(book));
   }
+  static delete(req,res) {
+    BookDAO.delete(req.params.id)
+           .then(() => res.status(204).end());
+  }
 }
 
 module.exports = BookController;
