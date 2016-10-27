@@ -1,0 +1,7 @@
+CREATE DATABASE mybooks;
+
+CREATE TABLE books(
+  id SERIAL PRIMARY KEY,
+  title VARCHAR,
+  author VARCHAR
+);

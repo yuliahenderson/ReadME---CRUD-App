@@ -1,12 +1,15 @@
 import React, {Component} from 'react';
 import request from 'superagent';
+import BooksList from './booksList.jsx';
 import Book from './Book.jsx';
+
 
 class App extends Component {
  constructor(props) {
   super(props);
   this.state = { books: [] };
-  this.addBook = this.addBook.bind(this);
+  this.handlePublish = this.handlePublish.bind(this);
+  // this.handleDelete = this.handleDelete.bind(this);
  }
  componentDidMount() {
   this.getBooks();
@@ -18,7 +21,7 @@ class App extends Component {
           this.setState({ books });
          });
  }
- addBook({ title, author }) {
+ handlePublish({ title, author }) {
   request.post('/api/books')
          .send({ title, author })
          .then(() => {
@@ -28,8 +31,9 @@ class App extends Component {
   render() {
     return(
       <div>
-      <h1>Reading List</h1>
-      <Book />
+        <h1>Reading List</h1>
+        <BooksList handlePublish={this.handlePublish} books={this.state.books} />
+        <Book handlePublish={this.handlePublish} />
       </div>
     );
   }

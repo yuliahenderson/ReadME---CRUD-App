@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 
+
 const porpTypes = {
   title: React.PropTypes.string,
   author:React.PropTypes.string,
@@ -46,6 +47,7 @@ class Book extends Component {
       title: this.state.localTitle,
       author: this.state.localAuthor,
     });
+    console.log('submit');
     this.setState({ saved: true });
   }
   handleDeleteClick() {

@@ -21449,7 +21449,11 @@
 	
 	var _superagent2 = _interopRequireDefault(_superagent);
 	
-	var _Book = __webpack_require__(178);
+	var _booksList = __webpack_require__(178);
+	
+	var _booksList2 = _interopRequireDefault(_booksList);
+	
+	var _Book = __webpack_require__(180);
 	
 	var _Book2 = _interopRequireDefault(_Book);
 	
@@ -21470,7 +21474,8 @@
 	    var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 	
 	    _this.state = { books: [] };
-	    _this.addBook = _this.addBook.bind(_this);
+	    _this.handlePublish = _this.handlePublish.bind(_this);
+	    // this.handleDelete = this.handleDelete.bind(this);
 	    return _this;
 	  }
 	
@@ -21490,8 +21495,8 @@
 	      });
 	    }
 	  }, {
-	    key: 'addBook',
-	    value: function addBook(_ref) {
+	    key: 'handlePublish',
+	    value: function handlePublish(_ref) {
 	      var _this3 = this;
 	
 	      var title = _ref.title,
@@ -21512,7 +21517,8 @@
 	          null,
 	          'Reading List'
 	        ),
-	        _react2.default.createElement(_Book2.default, null)
+	        _react2.default.createElement(_booksList2.default, { handlePublish: this.handlePublish, books: this.state.books }),
+	        _react2.default.createElement(_Book2.default, { handlePublish: this.handlePublish })
 	      );
 	    }
 	  }]);
@@ -23124,6 +23130,90 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
+	var _book = __webpack_require__(179);
+	
+	var _book2 = _interopRequireDefault(_book);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var propTypes = {
+	  books: _react2.default.PropTypes.array.isRequired,
+	  handlePublish: _react2.default.PropTypes.func,
+	  handleDelete: _react2.default.PropTypes.func
+	};
+	
+	var BooksList = function (_Component) {
+	  _inherits(BooksList, _Component);
+	
+	  function BooksList() {
+	    _classCallCheck(this, BooksList);
+	
+	    return _possibleConstructorReturn(this, (BooksList.__proto__ || Object.getPrototypeOf(BooksList)).apply(this, arguments));
+	  }
+	
+	  _createClass(BooksList, [{
+	    key: 'render',
+	    value: function render() {
+	      var _this2 = this;
+	
+	      var bookElements = this.props.books.map(function (book, idx) {
+	        return _react2.default.createElement(
+	          'li',
+	          { key: idx },
+	          _react2.default.createElement(_book2.default, {
+	            handleDelete: _this2.props.handleDelete,
+	            handlePublish: _this2.props.handlePublish,
+	            title: book.title,
+	            author: book.author,
+	            id: book.id
+	          })
+	        );
+	      });
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(
+	          'h2',
+	          null,
+	          'Books I have Read'
+	        ),
+	        _react2.default.createElement(
+	          'ul',
+	          null,
+	          bookElements
+	        )
+	      );
+	    }
+	  }]);
+	
+	  return BooksList;
+	}(_react.Component);
+	
+	BooksList.propTypes = propTypes;
+	exports.default = BooksList;
+
+/***/ },
+/* 179 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -23193,6 +23283,155 @@
 	        title: this.state.localTitle,
 	        author: this.state.localAuthor
 	      });
+	      console.log('submit');
+	      this.setState({ saved: true });
+	    }
+	  }, {
+	    key: 'handleDeleteClick',
+	    value: function handleDeleteClick() {
+	      this.props.handleDelete(this.props.id);
+	    }
+	  }, {
+	    key: 'isSaved',
+	    value: function isSaved() {
+	      return this.props.title === this.state.localTitle && this.props.author === this.state.localAuthor;
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var activeButtons = void 0;
+	      if (this.isSaved()) {
+	        activeButtons = _react2.default.createElement(
+	          'div',
+	          { className: 'active-buttons' },
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.handleDeleteClick },
+	            'Finished'
+	          )
+	        );
+	      }
+	      return _react2.default.createElement(
+	        'div',
+	        { className: this.isSaved() ? 'saved' : 'not-saved' },
+	        _react2.default.createElement(
+	          'form',
+	          { className: 'book-view', onSubmit: this.handleSubmit },
+	          _react2.default.createElement('input', {
+	            type: 'text',
+	            name: 'title',
+	            value: this.state.localTitle,
+	            onChange: this.handleEditOfTitle
+	          }),
+	          _react2.default.createElement('input', {
+	            type: 'text',
+	            name: 'author',
+	            value: this.state.localAuthor,
+	            onChange: this.handleEditOfAuthor
+	          }),
+	          _react2.default.createElement('input', {
+	            type: 'submit',
+	            value: 'save',
+	            className: 'hidden'
+	          })
+	        ),
+	        activeButtons
+	      );
+	    }
+	  }]);
+	
+	  return Book;
+	}(_react.Component);
+	
+	Book.porpTypes = porpTypes;
+	exports.default = Book;
+
+/***/ },
+/* 180 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var porpTypes = {
+	  title: _react2.default.PropTypes.string,
+	  author: _react2.default.PropTypes.string,
+	  handlePublish: _react2.default.PropTypes.func,
+	  handleDelete: _react2.default.PropTypes.func,
+	  id: _react2.default.PropTypes.string
+	};
+	
+	var Book = function (_Component) {
+	  _inherits(Book, _Component);
+	
+	  function Book(props) {
+	    _classCallCheck(this, Book);
+	
+	    var _this = _possibleConstructorReturn(this, (Book.__proto__ || Object.getPrototypeOf(Book)).call(this, props));
+	
+	    _this.state = {
+	      localTitle: _this.props.title || '',
+	      localAuthor: _this.props.author || ''
+	    };
+	    _this.handleEditOfTitle = _this.handleEditOfTitle.bind(_this);
+	    _this.handleEditOfAuthor = _this.handleEditOfAuthor.bind(_this);
+	    _this.handleSubmit = _this.handleSubmit.bind(_this);
+	    _this.handleDeleteClick = _this.handleDeleteClick.bind(_this);
+	    _this.isSaved = _this.isSaved.bind(_this);
+	    return _this;
+	  }
+	
+	  _createClass(Book, [{
+	    key: 'componentWillReceiveProps',
+	    value: function componentWillReceiveProps(nextProps) {
+	      this.setState({
+	        localTitle: nextProps.title || '',
+	        localAuthor: nextProps.author || ''
+	      });
+	    }
+	  }, {
+	    key: 'handleEditOfTitle',
+	    value: function handleEditOfTitle(e) {
+	      var newTitle = e.target.value;
+	      this.setState({
+	        localTitle: newTitle
+	      });
+	    }
+	  }, {
+	    key: 'handleEditOfAuthor',
+	    value: function handleEditOfAuthor(e) {
+	      var newAuthor = e.target.value;
+	      this.setState({
+	        localAuthor: newAuthor
+	      });
+	    }
+	  }, {
+	    key: 'handleSubmit',
+	    value: function handleSubmit(e) {
+	      e.preventDefault();
+	      this.props.handlePublish({
+	        id: this.props.id,
+	        title: this.state.localTitle,
+	        author: this.state.localAuthor
+	      });
+	      console.log('submit');
 	      this.setState({ saved: true });
 	    }
 	  }, {
