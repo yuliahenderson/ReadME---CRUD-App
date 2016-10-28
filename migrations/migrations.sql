@@ -3,8 +3,8 @@ CREATE DATABASE mybooks;
 CREATE TABLE books(
   id SERIAL PRIMARY KEY,
   title VARCHAR NOT NULL,
-  author VARCHAR NOT NULL
-  user_id INTEGER REFERENCES users(id)
+  author VARCHAR NOT NULL,
+  user_id INTEGER REFERENCES users (id)
 );
 
 CREATE TABLE users(

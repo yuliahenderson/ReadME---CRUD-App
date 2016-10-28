@@ -11,6 +11,7 @@ class BookController {
     const bookData = {
       title: req.body.title,
       author: req.body.author,
+      user_id: req.session.currentUser.id,
     };
     // const title = req.body.title;
     // let author = req.body.author;

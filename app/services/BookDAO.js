@@ -1,10 +1,10 @@
-const db = require('../config/sql/db');
-const sql = require('../config/sql/sqlProvider').books;
+const db = require('../config/db');
+const sql = require('../config/sqlProvider').books;
 const Book = require('../models/Book');
 
 class BookDAO {
-  static create({ title, author }) {
-    return db.one(sql.create, [ title, author ])
+  static create({ title, author, user_id }) {
+    return db.one(sql.create, [ title, author, user_id ])
              .then((data) => new Book(data));
   }
   static delete(id) {

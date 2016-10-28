@@ -21484,10 +21484,10 @@
 	    var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 	
 	    _this.state = { books: [] };
-	    _this.sendBook = _this.sendBook.bind(_this);
 	    _this.logIn = _this.logIn.bind(_this);
 	    _this.signUp = _this.signUp.bind(_this);
 	    _this.signOut = _this.signOut.bind(_this);
+	    _this.sendBook = _this.sendBook.bind(_this);
 	    return _this;
 	  }
 	
@@ -21505,9 +21505,7 @@
 	      var _this2 = this;
 	
 	      _superagent2.default.get('/api/books').then(function (response) {
-	        console.log(response);
-	        var books = response.body;
-	        console.log(books);
+	        var books = response.title;
 	        _this2.setState({ books: books });
 	      }).catch(function () {
 	        _this2.updateAuth();
@@ -21518,9 +21516,10 @@
 	    value: function sendBook(_ref) {
 	      var _this3 = this;
 	
-	      var body = _ref.body;
+	      var title = _ref.title,
+	          author = _ref.author;
 	
-	      _superagent2.default.post('/api/books').send({ body: body }).then(function () {
+	      _superagent2.default.post('/api/books').send({ title: title, author: author }).then(function () {
 	        _this3.getCurrentUserBooks();
 	      });
 	      console.log('sent');
@@ -21559,9 +21558,8 @@
 	      console.log(userDetails);
 	      _superagent2.default.post('/api/signup').send(userDetails).then(function () {
 	        _this6.updateAuth();
-	        _this6.getCurrentUserBooks();
+	        // this.getCurrentUserBooks();
 	      });
-	      console.log('sent');
 	    }
 	  }, {
 	    key: 'render',
@@ -23689,7 +23687,7 @@
 	          'test...'
 	        ),
 	        this.props.books.map(function (book) {
-	          return book.body;
+	          return book.title;
 	        })
 	      );
 	    }

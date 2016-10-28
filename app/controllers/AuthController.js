@@ -31,10 +31,10 @@ class AuthController {
             req.session.currentUser = user;
             const token = createToken(user);
             res.cookie('token', token);
+            console.log(res.cookie(token))
             res.status(200).json(user);
           })
           .catch((err) => res.status(500).json(err));
-          console.log(err)
     } else {
       res.status(400).end();
     }

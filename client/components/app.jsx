@@ -11,10 +11,10 @@ class App extends Component {
  constructor(props) {
   super(props);
   this.state = { books: [] };
-  this.sendBook = this.sendBook.bind(this);
   this.logIn = this.logIn.bind(this);
   this.signUp = this.signUp.bind(this);
   this.signOut = this.signOut.bind(this);
+  this.sendBook = this.sendBook.bind(this);
  }
  componentDidMount() {
   this.updateAuth();
@@ -25,18 +25,16 @@ class App extends Component {
  getCurrentUserBooks() {
   request.get('/api/books')
          .then((response) => {
-          console.log(response)
-          const books = response.body;
-          console.log(books)
+          const books = response.title;
           this.setState({ books });
          })
          .catch(() => {
           this.updateAuth();
          });
  }
- sendBook ({ body }) {
+ sendBook ({ title, author }) {
   request.post('/api/books')
-         .send({ body })
+         .send({ title, author })
          .then(() => {
           this.getCurrentUserBooks();
          });
@@ -65,9 +63,8 @@ signUp(userDetails) {
           .send(userDetails)
           .then(() => {
             this.updateAuth();
-            this.getCurrentUserBooks();
+            // this.getCurrentUserBooks();
           });
-          console.log('sent')
   }
   render() {
     let userDisplayElement;
@@ -92,7 +89,7 @@ signUp(userDetails) {
      {userDisplayElement}
     </div>
   );
-}
+ }
 }
 App.propTypes = propTypes;
 export default App;
