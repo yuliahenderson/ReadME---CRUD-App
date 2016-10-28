@@ -7,6 +7,12 @@ function sql(file) {
 }
 
 const sqlProvider = {
+  users: {
+    all: sql('./sql/user/all.sql'),
+    find: sql('./sql/user/find.sql'),
+    create: sql('./sql/user/create.sql'),
+    delete: sql('./sql/user/delete.sql'),
+  },
   books: {
     all: sql('./sql/book/all.sql'),
     create: sql('./sql/book/create.sql'),

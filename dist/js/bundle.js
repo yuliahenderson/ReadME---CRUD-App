@@ -21449,13 +21449,21 @@
 	
 	var _superagent2 = _interopRequireDefault(_superagent);
 	
-	var _booksList = __webpack_require__(178);
+	var _reactCookie = __webpack_require__(178);
+	
+	var _reactCookie2 = _interopRequireDefault(_reactCookie);
+	
+	var _userForm = __webpack_require__(180);
+	
+	var _userForm2 = _interopRequireDefault(_userForm);
+	
+	var _booksList = __webpack_require__(181);
 	
 	var _booksList2 = _interopRequireDefault(_booksList);
 	
-	var _Book = __webpack_require__(180);
+	var _book = __webpack_require__(182);
 	
-	var _Book2 = _interopRequireDefault(_Book);
+	var _book2 = _interopRequireDefault(_book);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -21464,6 +21472,8 @@
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var propTypes = {};
 	
 	var App = function (_Component) {
 	  _inherits(App, _Component);
@@ -21474,51 +21484,113 @@
 	    var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 	
 	    _this.state = { books: [] };
-	    _this.handlePublish = _this.handlePublish.bind(_this);
-	    // this.handleDelete = this.handleDelete.bind(this);
+	    _this.sendBook = _this.sendBook.bind(_this);
+	    _this.logIn = _this.logIn.bind(_this);
+	    _this.signUp = _this.signUp.bind(_this);
+	    _this.signOut = _this.signOut.bind(_this);
 	    return _this;
 	  }
 	
 	  _createClass(App, [{
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
-	      this.getBooks();
+	      this.updateAuth();
+	      if (_reactCookie2.default.load('token')) {
+	        this.getCurrentUserBooks();
+	      }
 	    }
 	  }, {
-	    key: 'getBooks',
-	    value: function getBooks() {
+	    key: 'getCurrentUserBooks',
+	    value: function getCurrentUserBooks() {
 	      var _this2 = this;
 	
 	      _superagent2.default.get('/api/books').then(function (response) {
+	        console.log(response);
 	        var books = response.body;
+	        console.log(books);
 	        _this2.setState({ books: books });
+	      }).catch(function () {
+	        _this2.updateAuth();
 	      });
 	    }
 	  }, {
-	    key: 'handlePublish',
-	    value: function handlePublish(_ref) {
+	    key: 'sendBook',
+	    value: function sendBook(_ref) {
 	      var _this3 = this;
 	
-	      var title = _ref.title,
-	          author = _ref.author;
+	      var body = _ref.body;
 	
-	      _superagent2.default.post('/api/books').send({ title: title, author: author }).then(function () {
-	        _this3.getBooks();
+	      _superagent2.default.post('/api/books').send({ body: body }).then(function () {
+	        _this3.getCurrentUserBooks();
 	      });
+	      console.log('sent');
+	    }
+	  }, {
+	    key: 'signOut',
+	    value: function signOut() {
+	      var _this4 = this;
+	
+	      _superagent2.default.post('/api/signout').then(function () {
+	        return _this4.updateAuth();
+	      });
+	    }
+	  }, {
+	    key: 'updateAuth',
+	    value: function updateAuth() {
+	      this.setState({
+	        token: _reactCookie2.default.load('token')
+	      });
+	    }
+	  }, {
+	    key: 'logIn',
+	    value: function logIn(userDetails) {
+	      var _this5 = this;
+	
+	      _superagent2.default.post('/api/login').send(userDetails).then(function () {
+	        _this5.updateAuth();
+	        _this5.getCurrentUserBooks();
+	      });
+	    }
+	  }, {
+	    key: 'signUp',
+	    value: function signUp(userDetails) {
+	      var _this6 = this;
+	
+	      console.log(userDetails);
+	      _superagent2.default.post('/api/signup').send(userDetails).then(function () {
+	        _this6.updateAuth();
+	        _this6.getCurrentUserBooks();
+	      });
+	      console.log('sent');
 	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
+	      var userDisplayElement = void 0;
+	      if (this.state.token) {
+	        userDisplayElement = _react2.default.createElement(
+	          'div',
+	          null,
+	          _react2.default.createElement(
+	            'button',
+	            { onClick: this.signOut },
+	            'Log Out'
+	          ),
+	          _react2.default.createElement(_book2.default, { sendBook: this.sendBook }),
+	          _react2.default.createElement(_booksList2.default, { books: this.state.books })
+	        );
+	      } else {
+	        userDisplayElement = _react2.default.createElement(
+	          'div',
+	          null,
+	          _react2.default.createElement(_userForm2.default, { handleSubmit: this.signUp, buttonText: 'SignUp' }),
+	          _react2.default.createElement(_userForm2.default, { handleSubmit: this.logIn, buttonText: 'LogIn' })
+	        );
+	      }
 	      return _react2.default.createElement(
 	        'div',
 	        null,
-	        _react2.default.createElement(
-	          'h1',
-	          null,
-	          'Reading List'
-	        ),
-	        _react2.default.createElement(_booksList2.default, { handlePublish: this.handlePublish, books: this.state.books }),
-	        _react2.default.createElement(_Book2.default, { handlePublish: this.handlePublish })
+	        userDisplayElement
 	      );
 	    }
 	  }]);
@@ -21526,7 +21598,51 @@
 	  return App;
 	}(_react.Component);
 	
+	App.propTypes = propTypes;
 	exports.default = App;
+	
+	// const propTypes = {};
+	
+	// class App extends Component {
+	//  constructor(props) {
+	//   super(props);
+	//   this.state = { books: [] };
+	//   this.handlePublish = this.handlePublish.bind(this);
+	//   // this.handleDelete = this.handleDelete.bind(this);
+	//  }
+	//  componentDidMount() {
+	//   this.getBooks();
+	//  }
+	//  getBooks() {
+	//   request.get('/api/books')
+	//          .then((response) => {
+	//           console.log(response)
+	//           const booksData = response.body;
+	//           let books = [];
+	//           this.setState({ books });
+	//          });
+	//  }
+	//  handlePublish({ title, author }) {
+	//   request.post('/api/books')
+	//          .send({ title, author })
+	//          .then(() => {
+	//           this.getBooks();
+	//          });
+	//          console.log('sent')
+	//  }
+	//   render() {
+	//     return(
+	//       <div>
+	//         <h1>Reading List</h1>
+	//         <BooksList handlePublish={this.handlePublish} books={this.state.books} />
+	//         <BookForm handlePublish={this.handlePublish} />
+	//       </div>
+	//     );
+	//   }
+	// }
+	
+	// App.propTypes = propTypes;
+	// export default App;
 
 /***/ },
 /* 173 */
@@ -23118,233 +23234,316 @@
 /* 178 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	var cookie = __webpack_require__(179);
 	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
+	if (typeof Object.assign != 'function') {
+	  Object.assign = function(target) {
+	    'use strict';
+	    if (target == null) {
+	      throw new TypeError('Cannot convert undefined or null to object');
+	    }
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	    target = Object(target);
+	    for (var index = 1; index < arguments.length; index++) {
+	      var source = arguments[index];
+	      if (source != null) {
+	        for (var key in source) {
+	          if (Object.prototype.hasOwnProperty.call(source, key)) {
+	            target[key] = source[key];
+	          }
+	        }
+	      }
+	    }
+	    return target;
+	  };
+	}
 	
-	var _react = __webpack_require__(1);
+	var _rawCookie = {};
+	var _res = undefined;
 	
-	var _react2 = _interopRequireDefault(_react);
+	function _isResWritable() {
+	  if(!_res)
+	    return false
+	  if(_res.headersSent === true)
+	    return false
+	  return true
+	}
 	
-	var _book = __webpack_require__(179);
+	function load(name, doNotParse) {
+	  var cookies = (typeof document === 'undefined') ? _rawCookie : cookie.parse(document.cookie);
+	  var cookieVal = cookies && cookies[name];
 	
-	var _book2 = _interopRequireDefault(_book);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var propTypes = {
-	  books: _react2.default.PropTypes.array.isRequired,
-	  handlePublish: _react2.default.PropTypes.func,
-	  handleDelete: _react2.default.PropTypes.func
-	};
-	
-	var BooksList = function (_Component) {
-	  _inherits(BooksList, _Component);
-	
-	  function BooksList() {
-	    _classCallCheck(this, BooksList);
-	
-	    return _possibleConstructorReturn(this, (BooksList.__proto__ || Object.getPrototypeOf(BooksList)).apply(this, arguments));
+	  if (!doNotParse) {
+	    try {
+	      cookieVal = JSON.parse(cookieVal);
+	    } catch(e) {
+	      // Not serialized object
+	    }
 	  }
 	
-	  _createClass(BooksList, [{
-	    key: 'render',
-	    value: function render() {
-	      var _this2 = this;
+	  return cookieVal;
+	}
 	
-	      var bookElements = this.props.books.map(function (book, idx) {
-	        return _react2.default.createElement(
-	          'li',
-	          { key: idx },
-	          _react2.default.createElement(_book2.default, {
-	            handleDelete: _this2.props.handleDelete,
-	            handlePublish: _this2.props.handlePublish,
-	            title: book.title,
-	            author: book.author,
-	            id: book.id
-	          })
-	        );
-	      });
-	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        _react2.default.createElement(
-	          'h2',
-	          null,
-	          'Books I have Read'
-	        ),
-	        _react2.default.createElement(
-	          'ul',
-	          null,
-	          bookElements
-	        )
-	      );
-	    }
-	  }]);
+	function select(regex) {
+	  var cookies = (typeof document === 'undefined') ? _rawCookie : cookie.parse(document.cookie);
+	  if(!cookies)
+	    return {}
+	  if(!regex)
+	    return cookies
+	  return Object.keys(cookies)
+	    .reduce(function(accumulator, name) {
+	      if(!regex.test(name))
+	        return accumulator
+	      var newCookie = {}
+	      newCookie[name] = cookies[name]
+	      return Object.assign({}, accumulator, newCookie)
+	    }, {})
+	}
 	
-	  return BooksList;
-	}(_react.Component);
+	function save(name, val, opt) {
+	  _rawCookie[name] = val;
 	
-	BooksList.propTypes = propTypes;
-	exports.default = BooksList;
+	  // allow you to work with cookies as objects.
+	  if (typeof val === 'object') {
+	    _rawCookie[name] = JSON.stringify(val);
+	  }
+	
+	  // Cookies only work in the browser
+	  if (typeof document !== 'undefined') {
+	    document.cookie = cookie.serialize(name, _rawCookie[name], opt);
+	  }
+	
+	  if (_isResWritable() && _res.cookie) {
+	    _res.cookie(name, val, opt);
+	  }
+	}
+	
+	function remove(name, opt) {
+	  delete _rawCookie[name];
+	
+	  if (typeof opt === 'undefined') {
+	    opt = {};
+	  } else if (typeof opt === 'string') {
+	    // Will be deprecated in future versions
+	    opt = { path: opt };
+	  } else {
+	    // Prevent mutation of opt below
+	    opt = Object.assign({}, opt);
+	  }
+	
+	  if (typeof document !== 'undefined') {
+	    opt.expires = new Date(1970, 1, 1, 0, 0, 1);
+	    document.cookie = cookie.serialize(name, '', opt);
+	  }
+	
+	  if (_isResWritable() && _res.clearCookie) {
+	    _res.clearCookie(name, opt);
+	  }
+	}
+	
+	function setRawCookie(rawCookie) {
+	  if (rawCookie) {
+	    _rawCookie = cookie.parse(rawCookie);
+	  } else {
+	    _rawCookie = {};
+	  }
+	}
+	
+	function plugToRequest(req, res) {
+	  if (req.cookie) {
+	    _rawCookie = req.cookie;
+	  } else if (req.cookies) {
+	    _rawCookie = req.cookies;
+	  } else if (req.headers && req.headers.cookie) {
+	    setRawCookie(req.headers.cookie);
+	  } else {
+	    _rawCookie = {};
+	  }
+	
+	  _res = res;
+	  return function unplug() {
+	    _res = null;
+	    _rawCookie = {};
+	  }
+	}
+	
+	var reactCookie = {
+	  load: load,
+	  select: select,
+	  save: save,
+	  remove: remove,
+	  setRawCookie: setRawCookie,
+	  plugToRequest: plugToRequest
+	};
+	
+	if (typeof window !== 'undefined') {
+	  window['reactCookie'] = reactCookie;
+	}
+	
+	module.exports = reactCookie;
+
 
 /***/ },
 /* 179 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	'use strict';
+	/*!
+	 * cookie
+	 * Copyright(c) 2012-2014 Roman Shtylman
+	 * Copyright(c) 2015 Douglas Christopher Wilson
+	 * MIT Licensed
+	 */
 	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
+	/**
+	 * Module exports.
+	 * @public
+	 */
 	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	exports.parse = parse;
+	exports.serialize = serialize;
 	
-	var _react = __webpack_require__(1);
+	/**
+	 * Module variables.
+	 * @private
+	 */
 	
-	var _react2 = _interopRequireDefault(_react);
+	var decode = decodeURIComponent;
+	var encode = encodeURIComponent;
 	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	/**
+	 * RegExp to match field-content in RFC 7230 sec 3.2
+	 *
+	 * field-content = field-vchar [ 1*( SP / HTAB ) field-vchar ]
+	 * field-vchar   = VCHAR / obs-text
+	 * obs-text      = %x80-FF
+	 */
 	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	var fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
 	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	/**
+	 * Parse a cookie header.
+	 *
+	 * Parse the given cookie header string into an object
+	 * The object has the various cookies as keys(names) => values
+	 *
+	 * @param {string} str
+	 * @param {object} [options]
+	 * @return {object}
+	 * @public
+	 */
 	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var porpTypes = {
-	  title: _react2.default.PropTypes.string,
-	  author: _react2.default.PropTypes.string,
-	  handlePublish: _react2.default.PropTypes.func,
-	  handleDelete: _react2.default.PropTypes.func,
-	  id: _react2.default.PropTypes.string
-	};
-	
-	var Book = function (_Component) {
-	  _inherits(Book, _Component);
-	
-	  function Book(props) {
-	    _classCallCheck(this, Book);
-	
-	    var _this = _possibleConstructorReturn(this, (Book.__proto__ || Object.getPrototypeOf(Book)).call(this, props));
-	
-	    _this.state = {
-	      localTitle: _this.props.title || '',
-	      localAuthor: _this.props.author || ''
-	    };
-	    _this.handleEditOfTitle = _this.handleEditOfTitle.bind(_this);
-	    _this.handleEditOfAuthor = _this.handleEditOfAuthor.bind(_this);
-	    _this.handleSubmit = _this.handleSubmit.bind(_this);
-	    _this.handleDeleteClick = _this.handleDeleteClick.bind(_this);
-	    _this.isSaved = _this.isSaved.bind(_this);
-	    return _this;
+	function parse(str, options) {
+	  if (typeof str !== 'string') {
+	    throw new TypeError('argument str must be a string');
 	  }
 	
-	  _createClass(Book, [{
-	    key: 'componentWillReceiveProps',
-	    value: function componentWillReceiveProps(nextProps) {
-	      this.setState({
-	        localTitle: nextProps.title || '',
-	        localAuthor: nextProps.author || ''
-	      });
-	    }
-	  }, {
-	    key: 'handleEditOfTitle',
-	    value: function handleEditOfTitle(e) {
-	      var newTitle = e.target.value;
-	      this.setState({
-	        localTitle: newTitle
-	      });
-	    }
-	  }, {
-	    key: 'handleEditOfAuthor',
-	    value: function handleEditOfAuthor(e) {
-	      var newAuthor = e.target.value;
-	      this.setState({
-	        localAuthor: newAuthor
-	      });
-	    }
-	  }, {
-	    key: 'handleSubmit',
-	    value: function handleSubmit(e) {
-	      e.preventDefault();
-	      this.props.handlePublish({
-	        id: this.props.id,
-	        title: this.state.localTitle,
-	        author: this.state.localAuthor
-	      });
-	      console.log('submit');
-	      this.setState({ saved: true });
-	    }
-	  }, {
-	    key: 'handleDeleteClick',
-	    value: function handleDeleteClick() {
-	      this.props.handleDelete(this.props.id);
-	    }
-	  }, {
-	    key: 'isSaved',
-	    value: function isSaved() {
-	      return this.props.title === this.state.localTitle && this.props.author === this.state.localAuthor;
-	    }
-	  }, {
-	    key: 'render',
-	    value: function render() {
-	      var activeButtons = void 0;
-	      if (this.isSaved()) {
-	        activeButtons = _react2.default.createElement(
-	          'div',
-	          { className: 'active-buttons' },
-	          _react2.default.createElement(
-	            'button',
-	            { onClick: this.handleDeleteClick },
-	            'Finished'
-	          )
-	        );
-	      }
-	      return _react2.default.createElement(
-	        'div',
-	        { className: this.isSaved() ? 'saved' : 'not-saved' },
-	        _react2.default.createElement(
-	          'form',
-	          { className: 'book-view', onSubmit: this.handleSubmit },
-	          _react2.default.createElement('input', {
-	            type: 'text',
-	            name: 'title',
-	            value: this.state.localTitle,
-	            onChange: this.handleEditOfTitle
-	          }),
-	          _react2.default.createElement('input', {
-	            type: 'text',
-	            name: 'author',
-	            value: this.state.localAuthor,
-	            onChange: this.handleEditOfAuthor
-	          }),
-	          _react2.default.createElement('input', {
-	            type: 'submit',
-	            value: 'save',
-	            className: 'hidden'
-	          })
-	        ),
-	        activeButtons
-	      );
-	    }
-	  }]);
+	  var obj = {}
+	  var opt = options || {};
+	  var pairs = str.split(/; */);
+	  var dec = opt.decode || decode;
 	
-	  return Book;
-	}(_react.Component);
+	  pairs.forEach(function(pair) {
+	    var eq_idx = pair.indexOf('=')
 	
-	Book.porpTypes = porpTypes;
-	exports.default = Book;
+	    // skip things that don't look like key=value
+	    if (eq_idx < 0) {
+	      return;
+	    }
+	
+	    var key = pair.substr(0, eq_idx).trim()
+	    var val = pair.substr(++eq_idx, pair.length).trim();
+	
+	    // quoted values
+	    if ('"' == val[0]) {
+	      val = val.slice(1, -1);
+	    }
+	
+	    // only assign once
+	    if (undefined == obj[key]) {
+	      obj[key] = tryDecode(val, dec);
+	    }
+	  });
+	
+	  return obj;
+	}
+	
+	/**
+	 * Serialize data into a cookie header.
+	 *
+	 * Serialize the a name value pair into a cookie string suitable for
+	 * http headers. An optional options object specified cookie parameters.
+	 *
+	 * serialize('foo', 'bar', { httpOnly: true })
+	 *   => "foo=bar; httpOnly"
+	 *
+	 * @param {string} name
+	 * @param {string} val
+	 * @param {object} [options]
+	 * @return {string}
+	 * @public
+	 */
+	
+	function serialize(name, val, options) {
+	  var opt = options || {};
+	  var enc = opt.encode || encode;
+	
+	  if (!fieldContentRegExp.test(name)) {
+	    throw new TypeError('argument name is invalid');
+	  }
+	
+	  var value = enc(val);
+	
+	  if (value && !fieldContentRegExp.test(value)) {
+	    throw new TypeError('argument val is invalid');
+	  }
+	
+	  var pairs = [name + '=' + value];
+	
+	  if (null != opt.maxAge) {
+	    var maxAge = opt.maxAge - 0;
+	    if (isNaN(maxAge)) throw new Error('maxAge should be a Number');
+	    pairs.push('Max-Age=' + maxAge);
+	  }
+	
+	  if (opt.domain) {
+	    if (!fieldContentRegExp.test(opt.domain)) {
+	      throw new TypeError('option domain is invalid');
+	    }
+	
+	    pairs.push('Domain=' + opt.domain);
+	  }
+	
+	  if (opt.path) {
+	    if (!fieldContentRegExp.test(opt.path)) {
+	      throw new TypeError('option path is invalid');
+	    }
+	
+	    pairs.push('Path=' + opt.path);
+	  }
+	
+	  if (opt.expires) pairs.push('Expires=' + opt.expires.toUTCString());
+	  if (opt.httpOnly) pairs.push('HttpOnly');
+	  if (opt.secure) pairs.push('Secure');
+	
+	  return pairs.join('; ');
+	}
+	
+	/**
+	 * Try decoding a string using a decoding function.
+	 *
+	 * @param {string} str
+	 * @param {function} decode
+	 * @private
+	 */
+	
+	function tryDecode(str, decode) {
+	  try {
+	    return decode(str);
+	  } catch (e) {
+	    return str;
+	  }
+	}
+
 
 /***/ },
 /* 180 */
@@ -23370,129 +23569,369 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var porpTypes = {
-	  title: _react2.default.PropTypes.string,
-	  author: _react2.default.PropTypes.string,
-	  handlePublish: _react2.default.PropTypes.func,
-	  handleDelete: _react2.default.PropTypes.func,
-	  id: _react2.default.PropTypes.string
+	var propTypes = {
+	  handleSubmit: _react2.default.PropTypes.func,
+	  buttonText: _react2.default.PropTypes.string
 	};
 	
-	var Book = function (_Component) {
-	  _inherits(Book, _Component);
+	var UserForm = function (_React$Component) {
+	  _inherits(UserForm, _React$Component);
 	
-	  function Book(props) {
-	    _classCallCheck(this, Book);
+	  function UserForm(props) {
+	    _classCallCheck(this, UserForm);
 	
-	    var _this = _possibleConstructorReturn(this, (Book.__proto__ || Object.getPrototypeOf(Book)).call(this, props));
+	    var _this = _possibleConstructorReturn(this, (UserForm.__proto__ || Object.getPrototypeOf(UserForm)).call(this, props));
 	
-	    _this.state = {
-	      localTitle: _this.props.title || '',
-	      localAuthor: _this.props.author || ''
-	    };
-	    _this.handleEditOfTitle = _this.handleEditOfTitle.bind(_this);
-	    _this.handleEditOfAuthor = _this.handleEditOfAuthor.bind(_this);
+	    _this.state = { email: '', password: '' };
+	    _this.handleInputChange = _this.handleInputChange.bind(_this);
 	    _this.handleSubmit = _this.handleSubmit.bind(_this);
-	    _this.handleDeleteClick = _this.handleDeleteClick.bind(_this);
-	    _this.isSaved = _this.isSaved.bind(_this);
 	    return _this;
 	  }
 	
-	  _createClass(Book, [{
-	    key: 'componentWillReceiveProps',
-	    value: function componentWillReceiveProps(nextProps) {
-	      this.setState({
-	        localTitle: nextProps.title || '',
-	        localAuthor: nextProps.author || ''
-	      });
-	    }
-	  }, {
-	    key: 'handleEditOfTitle',
-	    value: function handleEditOfTitle(e) {
-	      var newTitle = e.target.value;
-	      this.setState({
-	        localTitle: newTitle
-	      });
-	    }
-	  }, {
-	    key: 'handleEditOfAuthor',
-	    value: function handleEditOfAuthor(e) {
-	      var newAuthor = e.target.value;
-	      this.setState({
-	        localAuthor: newAuthor
-	      });
+	  _createClass(UserForm, [{
+	    key: 'handleInputChange',
+	    value: function handleInputChange(e) {
+	      var target = e.target;
+	      var name = target.getAttribute('name');
+	      var value = target.value;
+	      var updated = {};
+	      updated[name] = value;
+	      this.setState(updated);
 	    }
 	  }, {
 	    key: 'handleSubmit',
 	    value: function handleSubmit(e) {
 	      e.preventDefault();
-	      this.props.handlePublish({
-	        id: this.props.id,
-	        title: this.state.localTitle,
-	        author: this.state.localAuthor
-	      });
-	      console.log('submit');
-	      this.setState({ saved: true });
-	    }
-	  }, {
-	    key: 'handleDeleteClick',
-	    value: function handleDeleteClick() {
-	      this.props.handleDelete(this.props.id);
-	    }
-	  }, {
-	    key: 'isSaved',
-	    value: function isSaved() {
-	      return this.props.title === this.state.localTitle && this.props.author === this.state.localAuthor;
+	      this.props.handleSubmit(this.state);
 	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var activeButtons = void 0;
-	      if (this.isSaved()) {
-	        activeButtons = _react2.default.createElement(
-	          'div',
-	          { className: 'active-buttons' },
-	          _react2.default.createElement(
-	            'button',
-	            { onClick: this.handleDeleteClick },
-	            'Finished'
-	          )
-	        );
-	      }
 	      return _react2.default.createElement(
 	        'div',
-	        { className: this.isSaved() ? 'saved' : 'not-saved' },
+	        null,
+	        _react2.default.createElement(
+	          'form',
+	          { onSubmit: this.handleSubmit },
+	          _react2.default.createElement('input', {
+	            type: 'text',
+	            name: 'email',
+	            value: this.state.email,
+	            placeholder: 'email',
+	            onChange: this.handleInputChange
+	          }),
+	          _react2.default.createElement('input', {
+	            type: 'password',
+	            name: 'password',
+	            value: this.state.password,
+	            placeholder: 'password',
+	            onChange: this.handleInputChange
+	          }),
+	          _react2.default.createElement('input', { type: 'submit', value: this.props.buttonText })
+	        )
+	      );
+	    }
+	  }]);
+	
+	  return UserForm;
+	}(_react2.default.Component);
+	
+	UserForm.propTypes = propTypes;
+	
+	exports.default = UserForm;
+
+/***/ },
+/* 181 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var propTypes = {
+	  books: _react2.default.PropTypes.array
+	};
+	
+	var BooksList = function (_Component) {
+	  _inherits(BooksList, _Component);
+	
+	  function BooksList() {
+	    _classCallCheck(this, BooksList);
+	
+	    return _possibleConstructorReturn(this, (BooksList.__proto__ || Object.getPrototypeOf(BooksList)).apply(this, arguments));
+	  }
+	
+	  _createClass(BooksList, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(
+	          'h2',
+	          null,
+	          'test...'
+	        ),
+	        this.props.books.map(function (book) {
+	          return book.body;
+	        })
+	      );
+	    }
+	  }]);
+	
+	  return BooksList;
+	}(_react.Component);
+	
+	BooksList.propTypes = propTypes;
+	exports.default = BooksList;
+	
+	// const propTypes = {
+	//   books: React.PropTypes.array,
+	//   handlePublish: React.PropTypes.func,
+	//   handleDelete: React.PropTypes.func,
+	// };
+	
+	// class BooksList extends Component {
+	//   render() {
+	//     const bookElements = this.props.books.map((book, idx) => {
+	//       return (
+	//         <li key = {idx}>
+	//           <Book
+	//             handleDelete = {this.props.handleDelete}
+	//             handlePublish = {this.props.handlePublish}
+	//             title={book.title}
+	//             author={book.author}
+	//             id={book.id}
+	//           />
+	//         </li>
+	//       );
+	//     });
+	//     return(
+	//       <div>
+	//         <h2>Books I have Read</h2>
+	//         <ul>
+	//           {bookElements}
+	//         </ul>
+	//       </div>
+	//     );
+	//   }
+	// }
+	
+	// BooksList.propTypes = propTypes;
+	// export default BooksList;
+
+/***/ },
+/* 182 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var propTypes = {
+	  sendBook: _react2.default.PropTypes.func
+	};
+	
+	var BookForm = function (_Component) {
+	  _inherits(BookForm, _Component);
+	
+	  function BookForm(props) {
+	    _classCallCheck(this, BookForm);
+	
+	    var _this = _possibleConstructorReturn(this, (BookForm.__proto__ || Object.getPrototypeOf(BookForm)).call(this, props));
+	
+	    _this.state = { title: '', author: '' };
+	    // this.handleEditOfTitle = this.handleEditOfTitle.bind(this);
+	    // this.handleEditOfAuthor = this.handleEditOfAuthor.bind(this);
+	    _this.handleInputChange = _this.handleInputChange.bind(_this);
+	    _this.handleSubmit = _this.handleSubmit.bind(_this);
+	    return _this;
+	  }
+	
+	  _createClass(BookForm, [{
+	    key: 'handleInputChange',
+	    value: function handleInputChange(e) {
+	      var target = e.target;
+	      var name = target.getAttribute('name');
+	      var value = target.value;
+	      var updated = {};
+	      updated[name] = value;
+	      console.log(target.value);
+	      this.setState(updated);
+	    }
+	  }, {
+	    key: 'handleSubmit',
+	    value: function handleSubmit(e) {
+	      e.preventDefault();
+	      this.props.sendBook(this.state);
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      // let activeButtons;
+	      //     <div className="active-buttons">
+	      //       <button onClick={this.handleDeleteClick}>x</button>
+	      //     </div>
+	      return _react2.default.createElement(
+	        'div',
+	        null,
 	        _react2.default.createElement(
 	          'form',
 	          { className: 'book-view', onSubmit: this.handleSubmit },
 	          _react2.default.createElement('input', {
 	            type: 'text',
 	            name: 'title',
-	            value: this.state.localTitle,
-	            onChange: this.handleEditOfTitle
+	            value: this.state.body,
+	            onChange: this.handleInputChange
 	          }),
 	          _react2.default.createElement('input', {
 	            type: 'text',
 	            name: 'author',
-	            value: this.state.localAuthor,
-	            onChange: this.handleEditOfAuthor
+	            value: this.state.body,
+	            onChange: this.handleInputChange
 	          }),
 	          _react2.default.createElement('input', {
 	            type: 'submit',
 	            value: 'save',
 	            className: 'hidden'
 	          })
-	        ),
-	        activeButtons
+	        )
 	      );
 	    }
 	  }]);
 	
-	  return Book;
+	  return BookForm;
 	}(_react.Component);
 	
-	Book.porpTypes = porpTypes;
-	exports.default = Book;
+	BookForm.propTypes = propTypes;
+	exports.default = BookForm;
+	
+	// const propTypes = {
+	//   title: React.PropTypes.string,
+	//   author:React.PropTypes.string,
+	//   handlePublish: React.PropTypes.func,
+	//   handleDelete: React.PropTypes.func,
+	//   id: React.PropTypes.string,
+	// };
+	
+	// class BookForm extends Component {
+	//   constructor(props) {
+	//     super(props);
+	//     this.state = {
+	//       localTitle: this.props.title || '',
+	//       localAuthor: this.props.author || '',
+	//     };
+	//     this.handleEditOfTitle = this.handleEditOfTitle.bind(this);
+	//     this.handleEditOfAuthor = this.handleEditOfAuthor.bind(this);
+	//     this.handleSubmit = this.handleSubmit.bind(this);
+	//     this.handleDeleteClick = this.handleDeleteClick.bind(this);
+	//     this.isSaved = this.isSaved.bind(this);
+	//   }
+	//   componentWillReceiveProps(nextProps) {
+	//     this.setState({
+	//       localTitle: nextProps.title || '',
+	//       localAuthor: nextProps.author || '',
+	//     });
+	//   }
+	//   handleEditOfTitle(e) {
+	//     const newTitle = e.target.value;
+	//     this.setState({
+	//       localTitle: newTitle,
+	//     });
+	//   }
+	//   handleEditOfAuthor(e) {
+	//     const newAuthor = e.target.value;
+	//     this.setState({
+	//       localAuthor: newAuthor,
+	//     });
+	//   }
+	//   handleSubmit(e) {
+	//     e.preventDefault();
+	//     this.props.handlePublish({
+	//       id: this.props.id,
+	//       title: this.state.localTitle,
+	//       author: this.state.localAuthor,
+	//     });
+	//     console.log(this.state);
+	//     this.setState({ saved: true });
+	//   }
+	//   handleDeleteClick() {
+	//     this.props.handleDelete(this.props.id);
+	//   }
+	//   isSaved() {
+	//     return this.props.title === this.state.localTitle &&
+	//            this.props.author === this.state.localAuthor;
+	//   }
+	//   render() {
+	//     let activeButtons;
+	//       if (this.isSaved()) {
+	//        activeButtons = (
+	//          <div className="active-buttons">
+	//           <button onClick={this.handleDeleteClick}>x</button>
+	//         </div>
+	//       );
+	//     }
+	//     return (
+	//       <div>
+	//         <form className="book-view" onSubmit={this.handleSubmit}>
+	//           <input
+	//             type="text"
+	//             name="title"
+	//             value={this.state.body}
+	//             onChange={this.handleEditOfTitle}
+	//           />
+	//           <input
+	//             type="text"
+	//             name="author"
+	//             value={this.state.body}
+	//             onChange={this.handleEditOfAuthor}
+	//           />
+	//           <input
+	//             type="submit"
+	//             value="save"
+	//             className="hidden"
+	//           />
+	//         </form>
+	//         {activeButtons}
+	//       </div>
+	//     );
+	//   }
+	// }
+	
+	// BookForm.propTypes = propTypes;
+	// export default BookForm;
 
 /***/ }
 /******/ ]);

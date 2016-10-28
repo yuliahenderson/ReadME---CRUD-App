@@ -3,7 +3,7 @@ const BookController = require('../controllers/BookController');
 
 const router = express.Router();
 
-router.get('/', BookController.getAll);
+router.get('/', BookController.getCurrentUserBooks);
 router.post('/', BookController.create);
-
+router.post('/:id', BookController.create);
 module.exports = router;

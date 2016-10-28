@@ -2,6 +2,13 @@ CREATE DATABASE mybooks;
 
 CREATE TABLE books(
   id SERIAL PRIMARY KEY,
-  title VARCHAR,
-  author VARCHAR
+  title VARCHAR NOT NULL,
+  author VARCHAR NOT NULL
+  user_id INTEGER REFERENCES users(id)
+);
+
+CREATE TABLE users(
+  id SERIAL PRIMARY KEY,
+  email VARCHAR NOT NULL,
+  password VARCHAR NOT NULL
 );

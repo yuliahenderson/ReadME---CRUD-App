@@ -1,17 +1,19 @@
 const BookDAO = require('../services/BookDAO');
 
 class BookController {
-  static getAll(req, res) {
-    BookDAO.all()
-           .then((books) => {
-            res.status(200).json(books);
-           })
+
+  static getCurrentUserBooks(req, res) {
+  BookDAO.searchBy({ user_id: req.session.currentUser.id }).then((books) => {
+    res.status(200).json(books);
+    });
   }
   static create(req, res) {
     const bookData = {
       title: req.body.title,
       author: req.body.author,
     };
+    // const title = req.body.title;
+    // let author = req.body.author;
     BookDAO.create(bookData)
            .then((book) => res.status(200).json(book));
   }
